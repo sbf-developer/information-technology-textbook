@@ -179,5 +179,17 @@
       remember:
         "Start narrow. A clear small question finished well beats a vague huge topic that never converges.",
     },
+
+    "extra-math": {
+      disciplines: ["Mathematics", "Computer Science", "Software Engineering"],
+      what:
+        "This is an <strong>extra chapter</strong>, not an official AAU module. It explains the maths that keeps appearing in programming, databases, simulations, and thesis work — in plain English first.",
+      why:
+        "Computing degrees assume <strong>discrete mathematics</strong> (sets, logic, graphs, counting, probability) even when no course is called \"Mathematics 101\". ACM/IEEE CS2023 groups these under Mathematical and Statistical Foundations. Many students meet the ideas scattered across semester modules; this page gathers them.",
+      example:
+        "You write <code>if (user && !cart.isEmpty())</code> — that is logic. You add a foreign key in SQL — that is a relation. Your simulation spreads rumour with probability 0.2 — that is discrete probability. A folder tree with 100 files has 99 folder-file links in a minimal tree — that is graph maths. Same toolbox, different labels.",
+      remember:
+        "Goal is usable intuition, not memorising proofs. When a formula appears, ask what it means in code or data.",
+    },
   };
 })();

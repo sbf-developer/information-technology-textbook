@@ -14,7 +14,7 @@ window.CURRICULUM = {
     downloadPdf: "Download full book (PDF)",
     generatingPdf: "Building PDF…",
     pdfError:
-      "PDF export failed. Check your internet connection (the PDF library loads from CDN) and try again. You can also use the browser Print dialog on any page.",
+      "PDF export failed. Try again in a moment, or use the browser Print dialog on any page (Ctrl+P). If the book is very large, wait until the page has fully loaded first.",
     pdfCoverNote:
       "Auto-generated from the live textbook content in didaktisk-lærebog. Verify module details on moduler.aau.dk before exams.",
     curriculumLinks: "How it fits the programme",
@@ -441,6 +441,40 @@ window.CURRICULUM = {
         { label: "Booth et al.: Craft of Research", url: "https://www.press.uchicago.edu/ucp/books/book/chicago/C/bo19000768.html" },
         { label: "Wieringa: Design Science Methodology", url: "https://doi.org/10.1007/978-3-662-43839-8" },
         { label: "GDPR (EU Regulation 2016/679)", url: "https://gdpr-info.eu/" },
+      ],
+    },
+
+    {
+      id: "extra-math",
+      group: "Extra",
+      title: "Mathematics for CS & IT",
+      code: null,
+      ects: null,
+      type: "Supplementary · not on moduler.aau.dk",
+      summary:
+        "Discrete maths, logic, graphs, and probability explained for programmers — no maths degree assumed. Covers the ideas that keep showing up in code, databases, algorithms, simulations, and thesis work.",
+      concepts: [
+        "Sets, relations, and functions (types, SQL, APIs)",
+        "Logic and Boolean algebra (conditions, tests, proofs of correctness)",
+        "Graphs (networks, dependencies, routing)",
+        "Counting and combinatorics (passwords, arrangements, search spaces)",
+        "Big-O growth (why some code slows down at scale)",
+        "Graphs, networks, and tree traversals (BFS/DFS)",
+        "Recursion, recurrence, and proof by induction",
+        "Finite state machines (login flows, protocols)",
+        "Sampling, confidence intervals, and binomial models for thesis work",
+        "Boolean algebra, bits, and two's complement integers",
+      ],
+      connections:
+        "Optional depth beyond the official semester modules. Supports Computational Thinking (probability, graphs), Grundlæggende programmering (logic, Big-O), Databaseudvikling (relations, normal forms), and Kandidatspeciale (statistics, valid claims). Aligned with ACM/IEEE CS2023 Mathematical and Statistical Foundations (MSF).",
+      refs: [
+        { label: "ACM/IEEE CC2020 (computing curricula framework)", url: "https://www.acm.org/binaries/content/assets/education/curricula-recommendations/cc2020.pdf" },
+        { label: "CS2023: Mathematical and Statistical Foundations (MSF)", url: "https://csed.acm.org/wp-content/uploads/2024/04/1.3-Introduction-to-Knowledge-Model.pdf" },
+        { label: "MIT 6.042J: Mathematics for Computer Science", url: "https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-spring-2015/" },
+        { label: "Lehman, Leighton & Meyer: Mathematics for Computer Science (open text)", url: "https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-spring-2015/pages/readings/" },
+        { label: "Rosen: Discrete Mathematics and Its Applications", url: "https://www.mheducation.com/highered/product/discrete-mathematics-applications-rosen/9781259676512.html" },
+        { label: "VisuAlgo (algorithm visualisations)", url: "https://visualgo.net/en" },
+        { label: "NIST SP 800-63B (authentication)", url: "https://pages.nist.gov/800-63-4/sp800-63b.html" },
       ],
     },
   ],

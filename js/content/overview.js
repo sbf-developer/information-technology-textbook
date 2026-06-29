@@ -31,6 +31,7 @@
       title: "Reading this textbook",
       paragraphs: [
         "Each chapter follows the official Danish module title but explains theory in English. Use <strong>At a glance</strong> for exam revision, then read the sections for depth, principles, and code examples. Always cross-check learning objectives on <a href=\"https://moduler.aau.dk/\" target=\"_blank\" rel=\"noopener\">moduler.aau.dk</a> and the <a href=\"https://studieordninger.aau.dk/2026/59/6408\" target=\"_blank\" rel=\"noopener\">studieordning 2022</a>.",
+        "After the four semesters, the <strong>Extra</strong> section holds optional depth that is not part of the official curriculum — starting with mathematics for CS, IT, and software engineering.",
       ],
       callout:
         "Tip: When preparing for oral exams, practice explaining <em>assumptions</em> in your models and systems: what you simplified, what you measured, and what you would do differently at scale.",
