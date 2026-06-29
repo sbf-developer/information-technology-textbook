@@ -1,0 +1,103 @@
+/**
+ * Code block + highlight.js overrides.
+ * Loaded after atom-one-dark theme so tokens stay readable on dark pre.
+ */
+
+.code-block pre {
+  background: #282c34;
+  border: 1px solid #3e4451;
+}
+
+.code-block pre code,
+.code-block pre code.hljs {
+  display: block;
+  font-family: ui-monospace, "Cascadia Code", "Segoe UI Mono", Consolas, monospace;
+  white-space: pre;
+  background: transparent;
+  /* Do not use color: inherit — it pulls dark body text onto dark pre */
+  color: #abb2bf;
+}
+
+/* Base theme colour for unclassified tokens */
+.code-block .hljs {
+  color: #abb2bf;
+  background: transparent;
+}
+
+/* Ensure token classes beat any global link/strong rules */
+.code-block .hljs-keyword,
+.code-block .hljs-selector-tag,
+.code-block .hljs-built_in,
+.code-block .hljs-name {
+  color: #c678dd;
+}
+
+.code-block .hljs-string,
+.code-block .hljs-attr {
+  color: #98c379;
+}
+
+.code-block .hljs-number,
+.code-block .hljs-literal {
+  color: #d19a66;
+}
+
+.code-block .hljs-comment,
+.code-block .hljs-quote {
+  color: #5c6370;
+  font-style: italic;
+}
+
+.code-block .hljs-function,
+.code-block .hljs-title.function_ {
+  color: #61afef;
+}
+
+.code-block .hljs-variable,
+.code-block .hljs-template-variable,
+.code-block .hljs-params {
+  color: #e06c75;
+}
+
+.code-block .hljs-type,
+.code-block .hljs-class .hljs-title {
+  color: #e5c07b;
+}
+
+.code-block .hljs-meta,
+.code-block .hljs-meta .hljs-keyword {
+  color: #56b6c2;
+}
+
+.code-block .hljs-tag {
+  color: #e06c75;
+}
+
+.code-block .hljs-attribute {
+  color: #d19a66;
+}
+
+.code-block .hljs-regexp {
+  color: #98c379;
+}
+
+.code-block .hljs-symbol,
+.code-block .hljs-bullet {
+  color: #56b6c2;
+}
+
+.code-block .hljs-addition {
+  color: #98c379;
+}
+
+.code-block .hljs-deletion {
+  color: #e06c75;
+}
+
+.code-block .hljs-emphasis {
+  font-style: italic;
+}
+
+.code-block .hljs-strong {
+  font-weight: bold;
+}

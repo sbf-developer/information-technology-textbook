@@ -1,0 +1,276 @@
+/* Lesson audio panel + floating trigger */
+
+.audio-reader-root {
+  position: fixed;
+  z-index: 1000;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.audio-reader-root > * {
+  pointer-events: auto;
+}
+
+.audio-panel {
+  width: min(360px, calc(100vw - 2rem));
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 1.1rem 1.15rem 1.15rem;
+}
+
+.audio-panel-head h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.25rem;
+}
+
+.audio-panel-head p {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
+.audio-field {
+  margin-bottom: 0.85rem;
+}
+
+.audio-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.audio-segment {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.audio-segment-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.audio-segment-btn:hover {
+  color: var(--text);
+}
+
+.audio-segment-btn.is-active {
+  background: var(--text);
+  color: #fff;
+}
+
+.audio-now {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.audio-now strong {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 0.2rem;
+}
+
+.audio-now span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.audio-select {
+  width: 100%;
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.audio-passage-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.audio-passage-row input[type="range"] {
+  flex: 1;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--surface);
+}
+
+.audio-icon-btn {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audio-icon-btn:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.audio-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.audio-lesson-row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.audio-btn {
+  flex: 1;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.55rem 0.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.audio-btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.audio-btn-secondary:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.audio-btn-primary {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+  font-weight: 600;
+}
+
+.audio-btn-primary:hover {
+  background: #333;
+}
+
+.audio-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.audio-fab {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.audio-fab:hover {
+  background: var(--accent-soft);
+  border-color: #d0dfea;
+  color: var(--accent);
+}
+
+.audio-fab[aria-expanded="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Highlight passage being read */
+.audio-reading {
+  background: var(--accent-soft) !important;
+  outline: 2px solid #c5d9ea;
+  outline-offset: 2px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.audio-reading-section {
+  box-shadow: inset 3px 0 0 var(--accent);
+  background: linear-gradient(90deg, var(--accent-soft) 0%, transparent 55%);
+  border-radius: 0 8px 8px 0;
+  transition: background 0.2s ease;
+}
+
+@media (max-width: 640px) {
+  .audio-reader-root {
+    right: 0.75rem;
+    bottom: 0.75rem;
+  }
+
+  .audio-panel {
+    width: calc(100vw - 1.5rem);
+  }
+}
