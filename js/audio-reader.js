@@ -161,6 +161,7 @@
       updatePlayButton();
       return;
     }
+    if (!isSpeakingAloud()) syncToCurrentModule();
     speakPassage(state.passageIndex);
   }
 
@@ -189,21 +190,34 @@
     return state.playing || speechSynthesis.speaking || speechSynthesis.pending;
   }
 
+  function passageIndexForChapter(chapterId) {
+    const sectionId =
+      state.scope === "lesson"
+        ? book.passages.filter((p) => p.chapterId === chapterId).find((p) => p.sectionId)?.sectionId || ""
+        : state.sectionId;
+    const list = window.TextbookAudioQueue.scopePassages(book, state.scope, chapterId, sectionId);
+    const idx = list.findIndex((p) => p.chapterId === chapterId);
+    return idx >= 0 ? idx : 0;
+  }
+
+  function alignToChapter(chapterId, { updateSection = true } = {}) {
+    if (!chapterId) return;
+    state.chapterId = chapterId;
+    if (updateSection) {
+      if (state.scope === "lesson") {
+        const inChapter = book.passages.filter((p) => p.chapterId === chapterId);
+        state.sectionId = inChapter.find((p) => p.sectionId)?.sectionId || "";
+      } else {
+        state.sectionId = "";
+      }
+    }
+    state.passageIndex = passageIndexForChapter(chapterId);
+  }
   function syncToCurrentModule() {
     const chapterId = getCurrentPageChapterId();
     if (!chapterId) return;
 
-    state.chapterId = chapterId;
-    if (state.scope === "lesson") {
-      const inChapter = book.passages.filter((p) => p.chapterId === chapterId);
-      state.sectionId = inChapter.find((p) => p.sectionId)?.sectionId || "";
-    } else {
-      state.sectionId = "";
-    }
-
-    scoped = scopedPassages();
-    const idx = scoped.findIndex((p) => p.chapterId === chapterId);
-    state.passageIndex = idx >= 0 ? idx : 0;
+    alignToChapter(chapterId);
 
     const main = document.getElementById("main-content");
     window.TextbookAudioQueue.tagDomPassages(main, chapterId);
@@ -230,17 +244,8 @@
     const lesson = book.lessons.find((l) => l.chapterId === chapterId);
     if (!lesson) return;
 
-    state.chapterId = chapterId;
-    if (state.scope === "lesson") {
-      const inChapter = book.passages.filter((p) => p.chapterId === chapterId);
-      state.sectionId = inChapter.find((p) => p.sectionId)?.sectionId || "";
-    } else {
-      state.sectionId = "";
-    }
-
+    alignToChapter(chapterId);
     scoped = scopedPassages();
-    const idx = scoped.findIndex((p) => p.chapterId === chapterId);
-    state.passageIndex = idx >= 0 ? idx : 0;
     const firstPassage = scoped[state.passageIndex];
 
     closeLessonPicker();
@@ -276,8 +281,9 @@
   }
 
   function updateLessonPicker() {
+    const activeId = isSpeakingAloud() ? state.chapterId : getCurrentPageChapterId();
     els.lessonList?.querySelectorAll(".audio-lesson-option").forEach((btn) => {
-      const active = btn.dataset.chapterId === state.chapterId;
+      const active = btn.dataset.chapterId === activeId;
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", active ? "true" : "false");
     });
@@ -286,14 +292,14 @@
   function updatePanel() {
     scoped = scopedPassages();
     const p = currentPassage();
-    const lesson = lessonForChapterId(state.chapterId);
+    const displayChapterId =
+      !isSpeakingAloud() ? getCurrentPageChapterId() : p?.chapterId || state.chapterId;
+    const lesson = lessonForChapterId(displayChapterId);
     const lessonNum = (lesson?.chapterIndex ?? 0) + 1;
     const totalLessons = book.lessons.length;
 
     if (els.lessonTitle) {
-      els.lessonTitle.textContent = p
-        ? `${lessonNum}/${totalLessons}: ${p.chapterTitle}`
-        : `${lessonNum}/${totalLessons}: ${lesson?.chapterTitle || ""}`;
+      els.lessonTitle.textContent = `${lessonNum}/${totalLessons}: ${lesson?.chapterTitle || p?.chapterTitle || ""}`;
     }
 
     const scopeLabel =
@@ -325,16 +331,10 @@
 
   function setScope(scope) {
     state.scope = scope;
-    state.passageIndex = 0;
-    if (scope === "lesson") {
-      const inChapter = book.passages.filter((p) => p.chapterId === state.chapterId);
-      state.sectionId = inChapter.find((p) => p.sectionId)?.sectionId || "";
-    } else {
-      state.sectionId = "";
-    }
     els.scopeBtns?.forEach((btn) => {
       btn.classList.toggle("is-active", btn.dataset.scope === scope);
     });
+    alignToChapter(getCurrentPageChapterId());
     refreshScope();
     stop();
   }
@@ -558,6 +558,9 @@
       state.passageIndex = idx >= 0 ? idx : 0;
       updatePanel();
       if (options.autoPlay) speakPassage(state.passageIndex);
+    } else if (!options.audioHandoff && state.pendingSpeakIndex == null) {
+      alignToChapter(chapterId, { updateSection: true });
+      refreshScope();
     }
   }
 
