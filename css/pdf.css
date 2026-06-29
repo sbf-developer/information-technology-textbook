@@ -1,13 +1,18 @@
-/* Off-screen container used while html2pdf captures the full book */
+/* Off-screen container used while html2pdf captures the full book.
+   Do not use opacity:0 — html2canvas copies that into the clone and yields blank pages. */
 .pdf-export-root {
   position: fixed;
-  left: 0;
+  left: -100000px;
   top: 0;
   width: 210mm;
   z-index: -1;
-  opacity: 0;
   pointer-events: none;
   background: #fff;
+}
+
+.pdf-export-root.is-capturing {
+  left: 0;
+  z-index: 9999;
 }
 
 .pdf-document {

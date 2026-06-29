@@ -25,7 +25,14 @@
       document.body.appendChild(root);
     }
     root.innerHTML = `<div class="pdf-document">${renderFullBook(chapters, ui, program)}</div>`;
-    return root.querySelector(".pdf-document");
+    return root;
+  }
+
+  function exportBlocks(root) {
+    const doc = root.querySelector(".pdf-document");
+    const cover = doc?.querySelector(".pdf-cover");
+    const chapterEls = doc ? [...doc.querySelectorAll(".pdf-chapter")] : [];
+    return [cover, ...chapterEls].filter(Boolean);
   }
 
   function loadScript(src) {
@@ -61,11 +68,55 @@
     });
   }
 
-  function stripExternalStyles(clonedDoc) {
+  function prepareCloneForCapture(clonedDoc) {
     clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
       const href = link.getAttribute("href") || "";
       if (/^https?:\/\//i.test(href)) link.remove();
     });
+
+    clonedDoc.querySelectorAll(".pdf-export-root, .pdf-document, .pdf-cover, .pdf-chapter").forEach((el) => {
+      el.style.opacity = "1";
+      el.style.visibility = "visible";
+      el.style.background = "#fff";
+      el.style.color = "#111";
+      el.style.transform = "none";
+    });
+
+    const exportRoot = clonedDoc.getElementById("pdf-export-root");
+    if (exportRoot) {
+      exportRoot.style.position = "static";
+      exportRoot.style.left = "0";
+      exportRoot.style.top = "0";
+      exportRoot.style.width = "210mm";
+      exportRoot.style.maxHeight = "none";
+      exportRoot.style.overflow = "visible";
+      exportRoot.style.zIndex = "1";
+    }
+
+    clonedDoc.querySelectorAll("pre code").forEach((block) => {
+      block.removeAttribute("data-highlighted");
+    });
+  }
+
+  function pdfOptions() {
+    return {
+      margin: [12, 12, 14, 12],
+      filename: PDF_FILENAME,
+      image: { type: "jpeg", quality: 0.92 },
+      html2canvas: {
+        scale: 1.35,
+        useCORS: true,
+        logging: false,
+        scrollY: 0,
+        backgroundColor: "#ffffff",
+        onclone: prepareCloneForCapture,
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: {
+        mode: ["css", "legacy"],
+        avoid: [".code-block", ".callout", ".plain-intro", "tr"],
+      },
+    };
   }
 
   async function exportPdf() {
@@ -73,56 +124,48 @@
     setButtonState(btn, true);
 
     let root = null;
-    let restoreRoot = () => {};
 
     try {
       const html2pdf = await loadHtml2Pdf();
-      const documentEl = buildExportRoot();
-      root = document.getElementById("pdf-export-root");
+      root = buildExportRoot();
+      const blocks = exportBlocks(root);
 
-      restoreRoot = () => {
-        if (!root) return;
-        root.style.cssText = "";
-        root.setAttribute("aria-hidden", "true");
-      };
-      root.style.cssText =
-        "position:fixed;left:0;top:0;width:210mm;max-height:100vh;overflow:auto;z-index:9999;background:#fff;opacity:1;pointer-events:none;";
+      if (!blocks.length) {
+        throw new Error("No PDF content to export");
+      }
+
+      root.classList.add("is-capturing");
       root.removeAttribute("aria-hidden");
-
       await waitForLayout();
 
-      await html2pdf()
-        .set({
-          margin: [12, 12, 14, 12],
-          filename: PDF_FILENAME,
-          image: { type: "jpeg", quality: 0.92 },
-          html2canvas: {
-            scale: 1.35,
-            useCORS: true,
-            logging: false,
-            scrollY: 0,
-            windowWidth: 794,
-            onclone: (clonedDoc) => {
-              stripExternalStyles(clonedDoc);
-              clonedDoc.querySelectorAll("pre code").forEach((block) => {
-                block.removeAttribute("data-highlighted");
-              });
-            },
-          },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-          pagebreak: {
-            mode: ["css", "legacy"],
-            before: ".pdf-chapter",
-            avoid: [".code-block", ".callout", ".plain-intro", "tr"],
-          },
-        })
-        .from(documentEl)
-        .save();
+      let worker = html2pdf()
+        .set(pdfOptions())
+        .from(blocks[0])
+        .toContainer()
+        .toCanvas()
+        .toPdf();
+
+      for (let i = 1; i < blocks.length; i += 1) {
+        worker = worker
+          .get("pdf")
+          .then((pdf) => {
+            pdf.addPage();
+          })
+          .from(blocks[i])
+          .toContainer()
+          .toCanvas()
+          .toPdf();
+      }
+
+      await worker.save();
     } catch (err) {
       console.error("PDF export failed:", err);
       alert(ui.pdfError);
     } finally {
-      restoreRoot();
+      if (root) {
+        root.classList.remove("is-capturing");
+        root.setAttribute("aria-hidden", "true");
+      }
       setButtonState(btn, false);
     }
   }
