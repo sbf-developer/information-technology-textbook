@@ -25,4 +25,6 @@ Open http://localhost:5196
 
 This public mirror is published from a private development repo. Updates appear here when the maintainer runs the publish script after editing content locally.
 
+**Pages setup:** repo **Settings → Pages → Deploy from a branch → `main` / (root)**. See [SETUP.md](SETUP.md).
+
 Cross-check learning objectives on [moduler.aau.dk](https://moduler.aau.dk/) and the [studieordning 2022](https://studieordninger.aau.dk/2026/59/6408).
