@@ -25,6 +25,19 @@
   padding: 1.1rem 1.15rem 1.15rem;
 }
 
+@media (min-width: 900px) {
+  .audio-reader-root {
+    right: max(
+      1.25rem,
+      calc((100vw - var(--sidebar) - var(--content-max)) / 2 - 0.5rem)
+    );
+  }
+
+  .audio-panel {
+    width: min(400px, calc(100vw - var(--sidebar) - 3rem));
+  }
+}
+
 .audio-panel-head h2 {
   font-size: 1.125rem;
   font-weight: 600;
@@ -90,6 +103,92 @@
   border-radius: 10px;
   padding: 0.65rem 0.75rem;
   margin-bottom: 0.85rem;
+}
+
+.audio-lesson-picker {
+  position: relative;
+  margin-bottom: 0.85rem;
+}
+
+.audio-now-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  padding: 0.65rem 2rem 0.65rem 0.75rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.audio-now-btn:hover,
+.audio-now-btn[aria-expanded="true"] {
+  border-color: #c5d9ea;
+  background: var(--accent-soft);
+}
+
+.audio-now-chevron {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.audio-lesson-list {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  max-height: 14rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.audio-lesson-list[hidden] {
+  display: none;
+}
+
+.audio-lesson-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.audio-lesson-option:hover {
+  background: var(--bg);
+}
+
+.audio-lesson-option.is-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.audio-lesson-option small {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-weight: 400;
+  margin-top: 0.1rem;
 }
 
 .audio-now strong {

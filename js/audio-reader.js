@@ -176,6 +176,113 @@
     els.playBtn.setAttribute("aria-pressed", label !== "Play" ? "true" : "false");
   }
 
+  function getCurrentPageChapterId() {
+    const hash = location.hash.slice(1);
+    if (hash && chapters.some((c) => c.id === hash)) return hash;
+    const active = document.querySelector(".nav-link.active");
+    if (active?.dataset.id) return active.dataset.id;
+    return state.chapterId;
+  }
+
+  function isSpeakingAloud() {
+    if (typeof speechSynthesis === "undefined") return state.playing;
+    return state.playing || speechSynthesis.speaking || speechSynthesis.pending;
+  }
+
+  function syncToCurrentModule() {
+    const chapterId = getCurrentPageChapterId();
+    if (!chapterId) return;
+
+    state.chapterId = chapterId;
+    if (state.scope === "lesson") {
+      const inChapter = book.passages.filter((p) => p.chapterId === chapterId);
+      state.sectionId = inChapter.find((p) => p.sectionId)?.sectionId || "";
+    } else {
+      state.sectionId = "";
+    }
+
+    scoped = scopedPassages();
+    const idx = scoped.findIndex((p) => p.chapterId === chapterId);
+    state.passageIndex = idx >= 0 ? idx : 0;
+
+    const main = document.getElementById("main-content");
+    window.TextbookAudioQueue.tagDomPassages(main, chapterId);
+    refreshScope();
+
+    const p = currentPassage();
+    if (p) window.TextbookAudioQueue.highlightPassage(main, p);
+  }
+
+  function closeLessonPicker() {
+    if (!els.lessonList) return;
+    els.lessonList.hidden = true;
+    els.lessonPickerBtn?.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleLessonPicker() {
+    if (!els.lessonList) return;
+    const open = els.lessonList.hidden;
+    els.lessonList.hidden = !open;
+    els.lessonPickerBtn?.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
+  function jumpToLesson(chapterId) {
+    const lesson = book.lessons.find((l) => l.chapterId === chapterId);
+    if (!lesson) return;
+
+    state.chapterId = chapterId;
+    if (state.scope === "lesson") {
+      const inChapter = book.passages.filter((p) => p.chapterId === chapterId);
+      state.sectionId = inChapter.find((p) => p.sectionId)?.sectionId || "";
+    } else {
+      state.sectionId = "";
+    }
+
+    scoped = scopedPassages();
+    const idx = scoped.findIndex((p) => p.chapterId === chapterId);
+    state.passageIndex = idx >= 0 ? idx : 0;
+    const firstPassage = scoped[state.passageIndex];
+
+    closeLessonPicker();
+    stop();
+
+    if (window.TextbookApp?.showChapter) {
+      window.TextbookApp.showChapter(chapterId, {
+        audioPassage: firstPassage?.passageInLesson ?? 0,
+      });
+    } else {
+      refreshScope();
+    }
+  }
+
+  function buildLessonList() {
+    if (!els.lessonList) return;
+    els.lessonList.innerHTML = book.lessons
+      .map((lesson) => {
+        const num = lesson.chapterIndex + 1;
+        const total = book.lessons.length;
+        return `<li role="presentation">
+          <button type="button" class="audio-lesson-option" role="option" data-chapter-id="${lesson.chapterId}">
+            ${num}/${total}: ${lesson.chapterTitle}
+            <small>${lesson.passageCount} passage${lesson.passageCount === 1 ? "" : "s"}</small>
+          </button>
+        </li>`;
+      })
+      .join("");
+
+    els.lessonList.querySelectorAll(".audio-lesson-option").forEach((btn) => {
+      btn.addEventListener("click", () => jumpToLesson(btn.dataset.chapterId));
+    });
+  }
+
+  function updateLessonPicker() {
+    els.lessonList?.querySelectorAll(".audio-lesson-option").forEach((btn) => {
+      const active = btn.dataset.chapterId === state.chapterId;
+      btn.classList.toggle("is-active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+  }
+
   function updatePanel() {
     scoped = scopedPassages();
     const p = currentPassage();
@@ -213,6 +320,7 @@
     els.lessonNext?.toggleAttribute("disabled", lessonNum >= totalLessons);
     els.passagePrev?.toggleAttribute("disabled", state.passageIndex <= 0);
     els.passageNext?.toggleAttribute("disabled", state.passageIndex >= scoped.length - 1);
+    updateLessonPicker();
   }
 
   function setScope(scope) {
@@ -281,9 +389,23 @@
           </div>
         </div>
 
-        <div class="audio-now">
-          <strong id="audio-lesson-title">1/15: Overview</strong>
-          <span id="audio-lesson-meta">This module · Passage 0/0</span>
+        <div class="audio-field">
+          <span class="audio-label">Module</span>
+          <div class="audio-lesson-picker">
+            <button
+              type="button"
+              class="audio-now audio-now-btn"
+              id="audio-lesson-picker-btn"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-label="Choose module to read from"
+            >
+              <strong id="audio-lesson-title">1/15: Overview</strong>
+              <span id="audio-lesson-meta">This module · Passage 0/0</span>
+              <span class="audio-now-chevron" aria-hidden="true">▾</span>
+            </button>
+            <ul class="audio-lesson-list" id="audio-lesson-list" role="listbox" hidden></ul>
+          </div>
         </div>
 
         <div class="audio-field">
@@ -328,6 +450,8 @@
     els.fab = $("audio-fab");
     els.lessonTitle = $("audio-lesson-title");
     els.lessonMeta = $("audio-lesson-meta");
+    els.lessonPickerBtn = $("audio-lesson-picker-btn");
+    els.lessonList = $("audio-lesson-list");
     els.speedLabel = $("audio-speed-label");
     els.speedRange = $("audio-speed");
     els.voiceSelect = $("audio-voice");
@@ -340,10 +464,33 @@
     els.scopeBtns = root.querySelectorAll(".audio-segment-btn");
 
     els.fab.addEventListener("click", () => {
+      const wasOpen = state.open;
       state.open = !state.open;
       els.panel.hidden = !state.open;
       els.fab.setAttribute("aria-expanded", state.open ? "true" : "false");
+      if (!state.open) {
+        closeLessonPicker();
+      } else if (!wasOpen && !isSpeakingAloud()) {
+        syncToCurrentModule();
+      }
     });
+
+    els.lessonPickerBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleLessonPicker();
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!els.lessonList || els.lessonList.hidden) return;
+      if (e.target.closest(".audio-lesson-picker")) return;
+      closeLessonPicker();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeLessonPicker();
+    });
+
+    buildLessonList();
 
     els.scopeBtns.forEach((btn) => {
       btn.addEventListener("click", () => setScope(btn.dataset.scope));

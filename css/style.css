@@ -7,6 +7,7 @@
   --accent: #1a3a5c;
   --accent-soft: #eef4fa;
   --sidebar: 280px;
+  --content-max: 820px;
 }
 
 * {
@@ -130,8 +131,10 @@ body {
 .main {
   flex: 1;
   min-width: 0;
-  padding: 2.5rem 3rem 4rem;
-  max-width: 780px;
+  width: 100%;
+  max-width: min(var(--content-max), calc(100vw - var(--sidebar) - 4rem));
+  margin-inline: auto;
+  padding: 2.5rem clamp(1.25rem, 4vw, 3rem) 4rem;
 }
 
 .hero {
@@ -588,6 +591,14 @@ th {
   }
 
   .main {
+    max-width: none;
+    margin-inline: 0;
     padding: 1.5rem 1.25rem 3rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  :root {
+    --content-max: 920px;
   }
 }
