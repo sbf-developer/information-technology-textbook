@@ -12,6 +12,7 @@
     sectionId: "",
     passageIndex: 0,
     playing: false,
+    paused: false,
     rate: 1,
     voiceUri: "",
     voices: [],
@@ -90,6 +91,7 @@
     if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
     utterance = null;
     state.playing = false;
+    state.paused = false;
     updatePlayButton();
     document.querySelectorAll(".audio-reading").forEach((el) => el.classList.remove("audio-reading"));
   }
@@ -100,6 +102,7 @@
     const gen = speakGen;
     speechSynthesis.cancel();
     utterance = null;
+    state.paused = false;
     scoped = scopedPassages();
     if (!scoped.length) return;
     state.passageIndex = Math.max(0, Math.min(index, scoped.length - 1));
@@ -130,6 +133,7 @@
         speakPassage(state.passageIndex + 1);
       } else {
         state.playing = false;
+        state.paused = false;
         updatePlayButton();
         document.querySelectorAll(".audio-reading, .audio-reading-section").forEach((el) => {
           el.classList.remove("audio-reading", "audio-reading-section");
@@ -139,9 +143,11 @@
     utterance.onerror = () => {
       if (gen !== speakGen) return;
       state.playing = false;
+      state.paused = false;
       updatePlayButton();
     };
 
+    state.paused = false;
     state.playing = true;
     updatePlayButton();
     updatePanel();
@@ -150,17 +156,23 @@
 
   function togglePlay() {
     if (typeof speechSynthesis === "undefined") return;
-    if (speechSynthesis.speaking && !speechSynthesis.paused) {
-      speechSynthesis.pause();
-      updatePlayButton();
-      return;
-    }
-    if (speechSynthesis.paused) {
+
+    if (state.paused || speechSynthesis.paused) {
       speechSynthesis.resume();
+      state.paused = false;
       state.playing = true;
       updatePlayButton();
       return;
     }
+
+    if (state.playing || speechSynthesis.speaking || speechSynthesis.pending) {
+      speechSynthesis.pause();
+      state.paused = true;
+      state.playing = true;
+      updatePlayButton();
+      return;
+    }
+
     if (!isSpeakingAloud()) syncToCurrentModule();
     speakPassage(state.passageIndex);
   }
@@ -168,9 +180,9 @@
   function updatePlayButton() {
     if (!els.playBtn) return;
     let label = "Play";
-    if (typeof speechSynthesis !== "undefined" && speechSynthesis.speaking) {
-      label = speechSynthesis.paused ? "Resume" : "Pause";
-    } else if (state.playing) {
+    if (state.paused || speechSynthesis.paused) {
+      label = "Resume";
+    } else if (state.playing || speechSynthesis.speaking || speechSynthesis.pending) {
       label = "Pause";
     }
     els.playBtn.textContent = label;
